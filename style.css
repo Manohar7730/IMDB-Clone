@@ -96,6 +96,11 @@ body {
     font-size: 30px;
 }
 
+.heading a{
+    text-decoration: none;
+    color: black;
+}
+
 .main {
     padding-top: 70px;
     background-color: #000;
