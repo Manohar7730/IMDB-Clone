@@ -43,11 +43,34 @@ function createMovieElement(
   moviePoster.classList.add("fav-poster");
 
   const posterImage = document.createElement("img");
-  posterImage.src = moviePoster !== 'N/A' ? movie.Poster : "<p>NO IMAGE</p>";
+  posterImage.src =
+    movie.Poster !== "N/A"
+      ? movie.Poster
+      : "https://upload.wikimedia.org/wikipedia/commons/f/f9/No-image-available.jpg";
   posterImage.alt = movie.Title;
 
   moviePoster.appendChild(posterImage);
   movieElement.appendChild(moviePoster);
+
+  const movieDetails = document.createElement("div");
+  movieDetails.classList.add("fav-details");
+
+  const detailsBox = document.createElement("div");
+  detailsBox.classList.add("fav-details-box");
+
+  const detailsContent = document.createElement("div");
+
+  const movieTitle = document.createElement("p");
+  const movieTitleLink = document.createElement("a");
+  movieTitleLink.href = `movie.html?id=${movie.imdbID}`;
+  movieTitleLink.textContent = movie.Title;
+  movieTitle.appendChild(movieTitleLink);
+  detailsContent.appendChild(movieTitle);
+
+  detailsBox.appendChild(detailsContent);
+
+  movieDetails.appendChild(detailsBox);
+  movieElement.appendChild(movieDetails);
 
   return movieElement;
 }
