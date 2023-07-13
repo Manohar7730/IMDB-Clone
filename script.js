@@ -16,7 +16,10 @@ async function searchMovies() {
       const response = await fetch(url);
       const data = await response.json();
       if (data.Response === "True" && data.Search) {
-        console.log(data);
+        for (const movie of data.Search) {
+          const movieElement = createMovieElement(movie, true, false);
+          searchResultContainer.appendChild(movieElement);
+        }
       } else {
         searchResultContainer.innerHTML = "<p>No results found.</p>";
       }
@@ -26,4 +29,25 @@ async function searchMovies() {
         "<p>Error occurred. Please try again later.</p>";
     }
   }
+}
+
+function createMovieElement(
+  movie,
+  showBookmarkIcon = true,
+  showDeleteIcon = true
+) {
+  const movieElement = document.createElement("div");
+  movieElement.classList.add("movie-item");
+
+  const moviePoster = document.createElement("div");
+  moviePoster.classList.add("fav-poster");
+
+  const posterImage = document.createElement("img");
+  posterImage.src = moviePoster !== 'N/A' ? movie.Poster : "<p>NO IMAGE</p>";
+  posterImage.alt = movie.Title;
+
+  moviePoster.appendChild(posterImage);
+  movieElement.appendChild(moviePoster);
+
+  return movieElement;
 }
