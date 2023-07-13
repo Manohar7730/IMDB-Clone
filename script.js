@@ -67,10 +67,38 @@ function createMovieElement(
   movieTitle.appendChild(movieTitleLink);
   detailsContent.appendChild(movieTitle);
 
+  const movieYear = document.createElement("p");
+  movieYear.textContent = movie.Year;
+  detailsContent.appendChild(movieYear);
+
   detailsBox.appendChild(detailsContent);
+
+  if (showBookmarkIcon) {
+    const bookmarkIcon = document.createElement("i");
+    bookmarkIcon.classList.add("fas", "fa-bookmark");
+    bookmarkIcon.style.cursor = "pointer";
+    bookmarkIcon.onclick = () => addToFavourites(movie.imdbID);
+    detailsBox.appendChild(bookmarkIcon);
+  }
+
+  if(showDeleteIcon) {
+    const removeIcon = document.createElement('i');
+    removeIcon.classList.add('fas','fa-trash');
+    removeIcon.style.cursor = 'pointer';
+    removeIcon.onclick = () => removeFromFavorites(movie.imdbID);
+    detailsBox.appendChild(removeIcon);
+  }
 
   movieDetails.appendChild(detailsBox);
   movieElement.appendChild(movieDetails);
 
   return movieElement;
+}
+
+function addToFavourites() {
+  alert("Movie added to WatchList");
+}
+
+function removeFromFavorites() {
+    alert("Movie removed from WatchList");
 }
