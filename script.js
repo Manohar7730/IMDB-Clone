@@ -1,7 +1,10 @@
 const apiKey = "57ebc4ca";
 
-async function searchMovies() {
-  const searchInput = document.getElementById("searchInput");
+const searchInput = document.getElementById("searchInput");
+
+searchInput.addEventListener('input',searchMovies);
+
+async function searchMovies(event) {
   const searchTerm = searchInput.value.trim();
 
   if (searchTerm !== "") {
