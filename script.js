@@ -77,7 +77,7 @@ function createMovieElement(
     const bookmarkIcon = document.createElement("i");
     bookmarkIcon.classList.add("fas", "fa-bookmark");
     bookmarkIcon.style.cursor = "pointer";
-    bookmarkIcon.onclick = () => addToFavourites(movie.imdbID);
+    bookmarkIcon.onclick = () => addToFavorites(movie.imdbID);
     detailsBox.appendChild(bookmarkIcon);
   }
 
@@ -95,10 +95,73 @@ function createMovieElement(
   return movieElement;
 }
 
-function addToFavourites() {
-  alert("Movie added to WatchList");
+function addToFavorites(movieID) {
+    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+    if(!favorites.includes(movieID)){
+        favorites.push(movieID);
+        localStorage.setItem('favorites',JSON.stringify(favorites));
+        alert("Movie added to WatchList");
+        loadFavorites();
+    }else{
+        removeFromFavorites(movieID);
+    }
 }
 
-function removeFromFavorites() {
-    alert("Movie removed from WatchList");
+function removeFromFavorites(movieID) {
+    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    const index = favorites.indexOf(movieID);
+
+    if(index > -1){
+        favorites.splice(index,1);
+        localStorage.setItem('favorites',JSON.stringify(favorites));
+        alert("Movie removed from WatchList");
+        loadFavorites();
+    }
 }
+
+async function loadFavorites(){
+    const favoritesContainer = document.getElementById('favoriteMovies');
+    favoritesContainer.innerHTML = '';
+
+    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+    if(favorites.length > 0){
+        for(const movieID of favorites){
+            const movie = await fetchMovieById(movieID);
+
+            if(movie){
+                const movieElement = createMovieElement(movie,false);
+                favoritesContainer.appendChild(movieElement);
+            }
+        }
+    }else{
+        favoritesContainer.innerHTML = '<p>No Favorite Movies Found</p>';
+    }
+}
+
+async function fetchMovieById(movieID){
+    const url = `https://www.omdbapi.com/?i=${movieID}&apikey=${apiKey}`;
+
+    try{
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if(data.Response === 'True'){
+            return data;
+        }
+    }catch (error){
+        console.log(error);
+    }
+    return null;
+}
+
+document.getElementById("searchInput").addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      searchMovies();
+    }
+  });
+
+window.onload = function () {
+    loadFavorites();
+  };
