@@ -81,10 +81,10 @@ function createMovieElement(
     detailsBox.appendChild(bookmarkIcon);
   }
 
-  if(showDeleteIcon) {
-    const removeIcon = document.createElement('i');
-    removeIcon.classList.add('fas','fa-trash');
-    removeIcon.style.cursor = 'pointer';
+  if (showDeleteIcon) {
+    const removeIcon = document.createElement("i");
+    removeIcon.classList.add("fas", "fa-trash");
+    removeIcon.style.cursor = "pointer";
     removeIcon.onclick = () => removeFromFavorites(movie.imdbID);
     detailsBox.appendChild(removeIcon);
   }
@@ -96,72 +96,126 @@ function createMovieElement(
 }
 
 function addToFavorites(movieID) {
-    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+  const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
 
-    if(!favorites.includes(movieID)){
-        favorites.push(movieID);
-        localStorage.setItem('favorites',JSON.stringify(favorites));
-        alert("Movie added to WatchList");
-        loadFavorites();
-    }else{
-        removeFromFavorites(movieID);
-    }
+  if (!favorites.includes(movieID)) {
+    favorites.push(movieID);
+    localStorage.setItem("favorites", JSON.stringify(favorites));
+    alert("Movie added to Watchlist");
+    loadFavorites();
+  } else {
+    removeFromFavorites(movieID);
+  }
 }
 
 function removeFromFavorites(movieID) {
-    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-    const index = favorites.indexOf(movieID);
+  const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+  const index = favorites.indexOf(movieID);
 
-    if(index > -1){
-        favorites.splice(index,1);
-        localStorage.setItem('favorites',JSON.stringify(favorites));
-        alert("Movie removed from WatchList");
-        loadFavorites();
-    }
+  if (index > -1) {
+    favorites.splice(index, 1);
+    localStorage.setItem("favorites", JSON.stringify(favorites));
+    alert("Movie removed from Watchlist");
+    loadFavorites();
+  }
 }
 
-async function loadFavorites(){
-    const favoritesContainer = document.getElementById('favoriteMovies');
-    favoritesContainer.innerHTML = '';
+async function loadFavorites() {
+  const favoritesContainer = document.getElementById("favoriteMovies");
+  favoritesContainer.innerHTML = "";
 
-    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+  const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
 
-    if(favorites.length > 0){
-        for(const movieID of favorites){
-            const movie = await fetchMovieById(movieID);
+  if (favorites.length > 0) {
+    for (const movieID of favorites) {
+      const movie = await fetchMovieById(movieID);
 
-            if(movie){
-                const movieElement = createMovieElement(movie,false);
-                favoritesContainer.appendChild(movieElement);
-            }
-        }
-    }else{
-        favoritesContainer.innerHTML = '<p>No Favorite Movies Found</p>';
+      if (movie) {
+        const movieElement = createMovieElement(movie, false);
+        favoritesContainer.appendChild(movieElement);
+      }
     }
+  } else {
+    favoritesContainer.innerHTML = "<p>No Favorite Movies Found</p>";
+  }
 }
 
-async function fetchMovieById(movieID){
-    const url = `https://www.omdbapi.com/?i=${movieID}&apikey=${apiKey}`;
+async function fetchMovieById(movieID) {
+  const url = `https://www.omdbapi.com/?i=${movieID}&apikey=${apiKey}`;
 
-    try{
-        const response = await fetch(url);
-        const data = await response.json();
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
 
-        if(data.Response === 'True'){
-            return data;
-        }
-    }catch (error){
-        console.log(error);
+    if (data.Response === "True") {
+      return data;
     }
-    return null;
+  } catch (error) {
+    console.log(error);
+  }
+  return null;
 }
 
-document.getElementById("searchInput").addEventListener("keydown", function (event) {
+async function getMovieDetails() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const movieID = urlParams.get("id");
+
+  if (movieID) {
+    const movie = await fetchMovieById(movieID);
+
+    if (movie) {
+      const movieDetailsContainer = document.getElementById("movieDetails");
+      movieDetailsContainer.innerHTML = "";
+
+      const movieTitle = document.createElement("h2");
+      movieTitle.textContent = movie.Title;
+      movieDetailsContainer.appendChild(movieTitle);
+
+      const moviePoster = document.createElement("img");
+      moviePoster.src =
+        movie.Poster !== "N/A" ? movie.Poster : "img/blank-poster.webp";
+      moviePoster.alt = movie.Title;
+      movieDetailsContainer.appendChild(moviePoster);
+
+      const movieInfo = document.createElement("div");
+      movieInfo.classList.add("movie-info");
+
+      const movieRating = document.createElement("p");
+      movieRating.textContent = `IMDb Rating: ${movie.imdbRating}`;
+      movieInfo.appendChild(movieRating);
+
+      const movieGenre = document.createElement("p");
+      movieGenre.textContent = `Genre: ${movie.Genre}`;
+      movieInfo.appendChild(movieGenre);
+
+      const moviePlot = document.createElement("p");
+      moviePlot.textContent = `Plot: ${movie.Plot}`;
+      movieInfo.appendChild(moviePlot);
+
+      movieDetailsContainer.appendChild(movieInfo);
+    } else {
+      const movieDetailsContainer = document.getElementById("movieDetails");
+      movieDetailsContainer.innerHTML = "<p>Movie details not found.</p>";
+    }
+  } else {
+    const movieDetailsContainer = document.getElementById("movieDetails");
+    movieDetailsContainer.innerHTML = "<p>Invalid movie ID.</p>";
+  }
+}
+
+document
+  .getElementById("searchInput")
+  .addEventListener("keydown", function (event) {
     if (event.key === "Enter") {
       searchMovies();
     }
   });
 
 window.onload = function () {
+  const currentLocation = window.location.pathname;
+  if (currentLocation.includes("movie.html")) {
+    getMovieDetails();
+  } else if (currentLocation.includes("favorite.html")) {
     loadFavorites();
-  };
+  }
+};
